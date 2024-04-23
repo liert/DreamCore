@@ -1,0 +1,13 @@
+# MYSQL 配置
+MySQL_IP: localhost
+MySQL_port: 3306
+MySQL_database: liert
+MySQL_Table: liert
+MySQL_user: root
+MySQL_password: root
+
+# Koishi 配置
+Koishi: false
+KoishiWsUrl: ws://localhost:11223
+
+Message: "用户[%s]不在白名单，请加QQ群: XXX"

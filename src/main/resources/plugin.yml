@@ -1,0 +1,6 @@
+name: MCQQ
+version: '${project.version}'
+main: com.github.liert.Main
+commands:
+  wl:
+    description: "/wl"
