@@ -1,6 +1,0 @@
-name: MCQQ
-version: '1.0'
-main: com.github.liert.Main
-commands:
-  wl:
-    description: "/wl"
