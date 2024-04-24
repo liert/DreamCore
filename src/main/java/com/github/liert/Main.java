@@ -21,6 +21,7 @@ public final class Main extends JavaPlugin {
         }
         main = this;
         Bukkit.getPluginCommand("wl").setExecutor(new Commands());
+        Bukkit.getPluginCommand("luck").setExecutor(new Commands());
         Bukkit.getPluginManager().registerEvents(new Listens(), this);
 //        this.getServer().getConsoleSender().sendMessage("-----***** Debug *****-----");
 //        this.getServer().getConsoleSender().sendMessage("-----***** End *****-----");

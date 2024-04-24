@@ -17,24 +17,41 @@ public class Commands implements CommandExecutor {
         if (strings.length < 1) {
             return true;
         }
-        if (strings[0].equals("add")) {
-            if (strings.length < 3) {
-                commandSender.sendMessage("Usage: /wl add <id>");
-                return true;
+        if (command.getName().equals("wl")) {
+            switch (strings[0]) {
+                case "add": { addWhiteList(commandSender, strings); break; }
+                case "del": { delWhiteList(commandSender, strings); break; }
             }
-            String result = SQLQuery.bind(strings[1], strings[2]);
-            commandSender.sendMessage(result);
-            return true;
-        }
-        if (strings[0].equals("def")) {
-            if (strings.length < 3) {
-                commandSender.sendMessage("Usage: /wl def <id>");
-                return true;
+        } else if (command.getName().equals("luck")) {
+            switch (strings[0]) {
+                case "getPlayer": { getPlayer(commandSender, strings); break; }
             }
-            String result = SQLQuery.delBind(strings[1], strings[2]);
-            commandSender.sendMessage(result);
-            return true;
         }
         return true;
+    }
+
+    public void addWhiteList(CommandSender commandSender, String[] strings){
+        if (strings.length < 3) {
+            commandSender.sendMessage("Usage: /wl add <qq> <id>");
+            return;
+        }
+        String result = SQLQuery.bind(strings[1], strings[2]);
+        commandSender.sendMessage(result);
+    }
+    public void delWhiteList(CommandSender commandSender, String[] strings){
+        if (strings.length < 3) {
+            commandSender.sendMessage("Usage: /wl def <qq> <id>");
+            return;
+        }
+        String result = SQLQuery.delBind(strings[1], strings[2]);
+        commandSender.sendMessage(result);
+    }
+    public void getPlayer(CommandSender commandSender, String[] strings){
+        if (strings.length < 2) {
+            commandSender.sendMessage("Usage: /luck getPlayer <qq>");
+            return;
+        }
+        String result = SQLQuery.getPlayer(strings[1]);
+        commandSender.sendMessage(result);
     }
 }

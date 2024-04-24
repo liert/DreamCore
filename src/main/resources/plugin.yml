@@ -4,3 +4,5 @@ main: com.github.liert.Main
 commands:
   wl:
     description: "/wl"
+  luck:
+    description: "/luck"
