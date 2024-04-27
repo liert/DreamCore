@@ -1,8 +1,10 @@
 package com.github.liert.SQL;
 
 import com.github.liert.Config.Settings;
+import org.bukkit.Bukkit;
 
 import java.sql.*;
+import java.util.HashMap;
 
 public class SQLQuery {
     public static String ip = Settings.I.MySQL_IP;
@@ -11,10 +13,7 @@ public class SQLQuery {
     public static String table = Settings.I.MySQL_Table;
     public static String user = Settings.I.MySQL_user;
     public static String password = Settings.I.MySQL_password;
-
-    public static final int NEW_BIND = 0;
-    public static final int HAVE_BOUND = 1;
-    public static final int RE_BIND = 2;
+    public static String eventName = String.format("%s_%s_update_event", database, table);
 
     static {
         try {
@@ -62,7 +61,7 @@ public class SQLQuery {
         ResultSet rs = null;
         try {
             conn = SQLQuery.getConnection();
-            ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `" + table + "` (" + "`qq` varchar(255) NOT NULL," + "`player` varchar(255) NOT NULL," + "`is_bind` int(10) UNSIGNED NOT NULL," + "PRIMARY KEY (`qq`)" + ");");
+            ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `" + table + "` (" + "`player` varchar(255) NOT NULL," + "`qq` varchar(255)," + "`daily_luck` int(10) UNSIGNED NOT NULL," + "`count_luck` int(10) UNSIGNED NOT NULL," + "PRIMARY KEY (`player`)" + ");");
             ps.execute();
         }
         catch (SQLException e) {
@@ -73,20 +72,19 @@ public class SQLQuery {
         }
     }
 
-    public static String getPlayer(String qq) {
+    public static boolean execute(String sql, Object... args){
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String status = "NULL";
+        boolean result = false;
         try {
             conn = SQLQuery.getConnection();
-            ps = conn.prepareStatement("SELECT * FROM `" + table + "`WHERE `qq` = ?");
-            ps.setString(1, qq);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                String resultPlayer = rs.getString("player");
-                status = resultPlayer;
+            ps = conn.prepareStatement(sql);
+            for (int i = 0; i < args.length; i++) {
+                ps.setObject(i + 1, args[i]);
             }
+            ps.execute();
+            result = true;
         }
         catch (SQLException e) {
             e.printStackTrace();
@@ -94,23 +92,29 @@ public class SQLQuery {
         finally {
             SQLQuery.free(rs, ps, conn);
         }
-        return status;
+        return result;
     }
 
-    public static boolean existPlayer(String qq, String player) {
+    public static HashMap<String, Object> executeQuery(String sql, Object... args) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        boolean status = false;
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("status", false);
         try {
             conn = SQLQuery.getConnection();
-            ps = conn.prepareStatement("SELECT * FROM `" + table + "`WHERE `player` = ?");
-            ps.setString(1, player);
+            ps = conn.prepareStatement(sql);
+            for (int i = 0; i < args.length; i++) {
+                ps.setObject(i + 1, args[i]);
+            }
             rs = ps.executeQuery();
             if (rs.next()) {
-                String resultQQ = rs.getString("qq");
-                if (!qq.equals(resultQQ)) {
-                    status = true;
+                result.put("status", true);
+                if (sql.contains(table)) {
+                    result.put("player", rs.getString("player"));
+                    result.put("qq", rs.getString("qq"));
+                    result.put("daily_luck", rs.getInt("daily_luck"));
+                    result.put("count_luck", rs.getInt("count_luck"));
                 }
             }
         }
@@ -120,27 +124,23 @@ public class SQLQuery {
         finally {
             SQLQuery.free(rs, ps, conn);
         }
-        return status;
+//        Bukkit.getConsoleSender().sendMessage(String.valueOf(result));
+        return result;
     }
 
-    public static int isBind(String qq, String player) {
+    public static boolean executeUpdate(String sql, Object... args){
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        int status = NEW_BIND;
+        boolean result = false;
         try {
             conn = SQLQuery.getConnection();
-            ps = conn.prepareStatement("SELECT * FROM `" + table + "`WHERE `qq` = ?");
-            ps.setString(1, qq);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                String name = rs.getString("player");
-                if (player.equals(name)){
-                    status = HAVE_BOUND;
-                } else {
-                    status = RE_BIND;
-                }
+            ps = conn.prepareStatement(sql);
+            for (int i = 0; i < args.length; i++) {
+                ps.setObject(i + 1, args[i]);
             }
+            ps.executeUpdate();
+            result = true;
         }
         catch (SQLException e) {
             e.printStackTrace();
@@ -148,103 +148,20 @@ public class SQLQuery {
         finally {
             SQLQuery.free(rs, ps, conn);
         }
-        return status;
+        return result;
     }
 
-    public static String bind(String qq, String player) {
-        if (existPlayer(qq, player)) {
-            return String.format("%s 名称重复", player);
+    public static void dailyTask() {
+        HashMap<String, Object> result = SQLQuery.executeQuery("SELECT * FROM information_schema.events WHERE event_name = ?", eventName);
+        if (!(boolean) result.get("status")) {
+            executeUpdate("SET GLOBAL event_scheduler = ON");
+            String createEventSQL = "CREATE EVENT %s ON SCHEDULE EVERY 1 DAY "
+                    + "STARTS DATE_ADD(CURDATE(), INTERVAL 1 DAY) "
+                    + "DO BEGIN "
+                    + "UPDATE %s SET daily_luck = 0; "
+                    + "END";
+            createEventSQL = String.format(createEventSQL, eventName, table);
+            executeUpdate(createEventSQL);
         }
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        String message = String.format("已绑定 %s", player);
-        int status = isBind(qq, player);
-        if (status == NEW_BIND) {
-            message = String.format("绑定 %s", player);
-            try {
-                conn = SQLQuery.getConnection();
-                ps = conn.prepareStatement("INSERT INTO `" + table + "` (`qq`, `player`, `is_bind`) VALUES (?, ?, ?)");
-                ps.setString(1, qq);
-                ps.setString(2, player);
-                ps.setInt(3, 1);
-                ps.execute();
-            }
-            catch (SQLException e) {
-                e.printStackTrace();
-                message = "INSERT 错误";
-            }
-            finally {
-                SQLQuery.free(rs, ps, conn);
-            }
-            return message;
-        } else if (status == RE_BIND) {
-            message = String.format("已绑定 %s", getPlayer(qq));
-//            try {
-//                conn = SQLQuery.getConnection();
-//                ps = conn.prepareStatement("UPDATE `" + table + "` SET `player`=?, `is_bind`=? WHERE (`qq`=?)");
-//                ps.setString(1, player);
-//                ps.setInt(2, 1);
-//                ps.setString(3, qq);
-//                ps.execute();
-//            }
-//            catch (SQLException e) {
-//                e.printStackTrace();
-//                message = "UPDATE 错误";
-//            }
-//            finally {
-//                SQLQuery.free(rs, ps, conn);
-//            }
-            return message;
-        } else {
-            return message;
-        }
-    }
-
-    public static String delBind(String qq, String player) {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        String message = String.format("解除绑定 %s", player);
-        try {
-            conn = SQLQuery.getConnection();
-            ps = conn.prepareStatement("SELECT * FROM `" + table + "`WHERE `player` = ?");
-            ps.setString(1, player);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                conn = SQLQuery.getConnection();
-                ps = conn.prepareStatement("DELETE FROM `" + table + "` WHERE (`player`=?)");
-                ps.setString(1, player);
-                ps.execute();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return message;
-    }
-    public static boolean existWhitelist(String player) {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        boolean status = false;
-        try {
-            conn = SQLQuery.getConnection();
-            ps = conn.prepareStatement("SELECT * FROM `" + table + "`WHERE `player` = ?");
-            ps.setString(1, player);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                String name = rs.getString("player");
-                if (player.equals(name)){
-                        status = true;
-                    }
-                }
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-        finally {
-            SQLQuery.free(rs, ps, conn);
-        }
-        return status;
     }
 }

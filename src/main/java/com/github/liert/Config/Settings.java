@@ -1,5 +1,7 @@
 package com.github.liert.Config;
 
+import java.util.HashMap;
+
 public class Settings {
     public static Settings I;
     public String MySQL_IP;
@@ -10,7 +12,8 @@ public class Settings {
     public String MySQL_Table;
     public boolean Koishi;
     public String KoishiWsUrl;
-    public String Message;
+    public int VeryLuck;
+    public HashMap<String, String> Message;
     public Settings() {
         I = this;
     }

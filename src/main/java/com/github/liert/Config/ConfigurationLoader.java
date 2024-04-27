@@ -66,17 +66,12 @@ public class ConfigurationLoader {
 
     public static boolean saveYamlConfiguration(Plugin plugin, Object obj, boolean overWrite) throws IOException {
         File configFile;
-        block6: {
-            block5: {
-                File dataFolder = plugin.getDataFolder();
-                configFile = new File(dataFolder, "config.yml");
-                if (!configFile.exists()) break block5;
-                if (overWrite) {
-                    return false;
-                }
-                break block6;
-            }
-            if (configFile.createNewFile()) break block6;
+        File dataFolder = plugin.getDataFolder();
+        configFile = new File(dataFolder, "config.yml");
+        if (!configFile.exists()) {
+            if (configFile.createNewFile()) saveYamlConfiguration(plugin, obj, overWrite);
+        }
+        if (overWrite) {
             return false;
         }
         FileOutputStream fileOutputStream = new FileOutputStream(configFile);

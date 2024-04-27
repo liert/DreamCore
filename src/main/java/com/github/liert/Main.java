@@ -15,6 +15,7 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         this.loadConfig();
         SQLQuery.createTable();
+        SQLQuery.dailyTask();
         if (Settings.I.Koishi) {
             ws = Ws.connectKoishi();
             Ws.startHeartbeat();
