@@ -24,9 +24,9 @@ KoishiWsUrl: ws://localhost:11223
 VeryLuck: 30
 
 Message:
-noWhiteList: "用户[%player%]不在白名单，请加QQ群: XXX"
-firstWhiteList: "第一次绑定 %player%"
-haveWhiteList: "已经绑定 %player%"
-repeatWhiteList: "[%player%]名称重复"
-delWhiteList: "解除绑定[%player%]"
+  noWhiteList: "用户[%player%]不在白名单，请加QQ群: XXX"
+  firstWhiteList: "第一次绑定 %player%"
+  haveWhiteList: "已经绑定 %player%"
+  repeatWhiteList: "[%player%]名称重复"
+  delWhiteList: "解除绑定[%player%]"
 ```
