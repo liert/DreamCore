@@ -1,7 +1,6 @@
 package com.github.liert.SQL;
 
 import com.github.liert.Config.Settings;
-import org.bukkit.Bukkit;
 
 import java.sql.*;
 import java.util.HashMap;

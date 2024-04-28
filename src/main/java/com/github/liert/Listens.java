@@ -1,7 +1,6 @@
 package com.github.liert;
 
 import com.github.liert.Config.Settings;
-import com.github.liert.SQL.SQLQuery;
 import com.github.liert.Tool.Tools;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

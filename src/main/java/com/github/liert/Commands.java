@@ -1,6 +1,5 @@
 package com.github.liert;
 
-import com.github.liert.SQL.SQLQuery;
 import com.github.liert.Tool.Tools;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
