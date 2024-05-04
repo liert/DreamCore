@@ -1,7 +1,7 @@
 package com.github.liert;
 
 import com.github.liert.Config.Settings;
-import com.github.liert.Tool.Tools;
+import com.github.liert.util.Tools;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

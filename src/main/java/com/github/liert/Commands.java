@@ -1,6 +1,7 @@
 package com.github.liert;
 
-import com.github.liert.Tool.Tools;
+import com.github.liert.util.Tools;
+import com.github.liert.util.WhiteList;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -33,9 +34,9 @@ public class Commands implements CommandExecutor {
     public void addWhiteList(CommandSender commandSender, String[] strings){
         String result;
         if (strings.length == 2) {
-            result = Tools.bind(strings[1]);
+            result = WhiteList.bind(strings[1]);
         } else if (strings.length == 3) {
-            result = Tools.bind(strings[1], strings[2]);
+            result = WhiteList.bind(strings[1], strings[2]);
         } else {
             commandSender.sendMessage("Usage: /wl add <id> [qq]");
             return;
@@ -47,7 +48,7 @@ public class Commands implements CommandExecutor {
             commandSender.sendMessage("Usage: /wl def <id>");
             return;
         }
-        String result = Tools.delBind(strings[1]);
+        String result = WhiteList.delBind(strings[1]);
         commandSender.sendMessage(result);
     }
     public void getLuckData(CommandSender commandSender, String[] strings){

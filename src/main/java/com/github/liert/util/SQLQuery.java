@@ -1,4 +1,4 @@
-package com.github.liert.SQL;
+package com.github.liert.util;
 
 import com.github.liert.Config.Settings;
 
@@ -55,20 +55,15 @@ public class SQLQuery {
     }
 
     public static void createTable() {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            conn = SQLQuery.getConnection();
-            ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `" + table + "` (" + "`player` varchar(255) NOT NULL," + "`qq` varchar(255)," + "`daily_luck` int(10) UNSIGNED NOT NULL," + "`count_luck` int(10) UNSIGNED NOT NULL," + "PRIMARY KEY (`player`)" + ");");
-            ps.execute();
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-        finally {
-            SQLQuery.free(rs, ps, conn);
-        }
+        String sql = "CREATE TABLE IF NOT EXISTS `" + table + "` " +
+                "(" +
+                "`player` varchar(255) NOT NULL, " +
+                "`qq` varchar(255), " +
+                "`daily_luck` int(10) UNSIGNED NOT NULL, " +
+                "`count_luck` int(10) UNSIGNED NOT NULL, " +
+                "PRIMARY KEY (`player`) " +
+                ");";
+        SQLQuery.execute(sql);
     }
 
     public static boolean execute(String sql, Object... args){
