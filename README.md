@@ -33,3 +33,5 @@ Message:
   repeatWhiteList: "[%player%]名称重复"
   delWhiteList: "解除绑定[%player%]"
 ```
+# 爱发电
+https://afdian.net/a/liert
